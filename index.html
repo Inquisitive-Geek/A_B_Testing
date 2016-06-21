@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>A/B Testing by Inquisitive-Geek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">A/B Testing</h1>
+      <h2 class="project-tagline">Testing out the changes done to an education website to see if it&#39;s effect is significant or not</h2>
+      <a href="https://github.com/Inquisitive-Geek/A_B_Testing" class="btn">View on GitHub</a>
+      <a href="https://github.com/Inquisitive-Geek/A_B_Testing/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/Inquisitive-Geek/A_B_Testing/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h3>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h3>
+
+<p>This project has been done as part of the Udacity Data Analyst Nanodegree. The problem statement, hypothesis and metric descriptions are taken from Udacity's A/B Testing project problem statement. I haven't provided the dataset but you can download it from Udacity's website.
+The problem is as follows. An experiment was conducted. At the time of this experiment, Udacity courses currently have two options on the home page: "start free trial", and "access course materials". If the student clicks "start free trial", they will be asked to enter their credit card information, and then they will be enrolled in a free trial for the paid version of the course. After 14 days, they will automatically be charged unless they cancel first. If the student clicks "access course materials", they will be able to view the videos and take the quizzes for free, but they will not receive coaching support or a verified certificate, and they will not submit their final project for feedback.
+In the experiment, Udacity tested a change where if the student clicked "start free trial", they were asked how much time they had available to devote to the course. If the student indicated 5 or more hours per week, they would be taken through the checkout process as usual. If they indicated fewer than 5 hours per week, a message would appear indicating that Udacity courses usually require a greater time commitment for successful completion, and suggesting that the student might like to access the course materials for free. At this point, the student would have the option to continue enrolling in the free trial, or access the course materials for free instead. </p>
+
+<h3>
+<a id="hypothesis-and-unit-of-diversion" class="anchor" href="#hypothesis-and-unit-of-diversion" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Hypothesis and Unit of Diversion</h3>
+
+<p>The hypothesis is that clearer expectations set up front will reduce the number of students leaving the course. The unit of diversion is a cookie.</p>
+
+<h3>
+<a id="metrics" class="anchor" href="#metrics" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Metrics</h3>
+
+<ul>
+<li>Number of cookies: That is, number of unique cookies to view the course overview page. (dmin=3000)</li>
+<li>Number of user-ids: That is, number of users who enroll in the free trial. (dmin=50)</li>
+<li>Number of clicks: That is, number of unique cookies to click the "Start free trial" button (which happens before the free trial screener is trigger). (dmin=240)</li>
+<li>Click-through-probability: That is, number of unique cookies to click the "Start free trial" button divided by number of unique cookies to view the course overview page. (dmin=0.01)</li>
+<li>Gross conversion: That is, number of user-ids to complete checkout and enroll in the free trial divided by number of unique cookies to click the "Start free trial" button. (dmin= 0.01)</li>
+<li>Retention: That is, number of user-ids to remain enrolled past the 14-day boundary (and thus make at least one payment) divided by number of user-ids to complete checkout. (dmin=0.01)</li>
+<li>Net conversion: That is, number of user-ids to remain enrolled past the 14-day boundary (and thus make at least one payment) divided by the number of unique cookies to click the "Start free trial" button. (dmin= 0.0075)</li>
+</ul>
+
+<h3>
+<a id="metric-choice" class="anchor" href="#metric-choice" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Metric Choice</h3>
+
+<p><strong>INVARIANT METRICS:</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>METRIC</th>
+<th>REASON</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of cookies</td>
+<td>The free trial screener is not triggered yet. Hence, the number of cookies is an invariant metric as its value is expected to be the same in the experiment and the control group.</td>
+</tr>
+<tr>
+<td>Number of clicks</td>
+<td>The free trial screener is not triggered yet. Hence, the number of clicks is an invariant metric as its value is expected to be the same in the experiment and the control group.</td>
+</tr>
+<tr>
+<td>Click-through-probability</td>
+<td>The click-through-probability is a ratio of the above 2 invariant metrics. Hence, it is invariant too.</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>EVALUATION METRICS:</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>METRIC</th>
+<th>REASON</th>
+<th>RESULTS EXPECTED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gross conversion</td>
+<td>The number of user-ids to complete checkout and enroll in the free trial could be significantly different in experiment and control groups. The free trial screener could influence its value. Gross conversion depends on it and hence it should be an evaluation metric.</td>
+<td>The gross conversion value in the experiment group should be statistically and practically significant (dmin= 0.01) and lesser as compared to the values in the control group to launch the experiment. This aligns with the experiment goals of reducing the number of students enrolling who can’t make the required time commitment.</td>
+</tr>
+<tr>
+<td>Net conversion</td>
+<td>The number of user-ids to remain enrolled past the 14 day period could be significantly different in the experiment and control groups. The free trial screener could influence its value. Net conversion depends on it and hence it should be an evaluation metric.</td>
+<td>There should be no statistically significant decrease between the net conversion in the experiment and the control groups. This also rules out the expectation of any practically significant difference. That aligns with the experiment goals of no significant decrease of the number of students enrolling past the 14 day period.</td>
+</tr>
+</tbody>
+</table>
+
+<p>The unit of diversion is a cookie. The number of user-ids might change significantly from the experiment and the control groups and hence should not be used as an invariant metric. The number of user-ids could have been an evaluation metric but it was not used as gross conversion is dependent on the number of user-ids and is a better metric to choose from as it is normalized by the number of cookies. The number of user-ids who enroll in the free trial could be different in the experiment and control groups as the number of cookies could also be even without the effect of the experiment. But the ratio should be pretty much the same if the experiment had no effect. Hence, the gross conversion was used as an evaluation metric.
+Retention is not an invariant metric as it depends on the number of user-ids to be enrolled past the 14 day period. But the number of page views needed to run an experiment with Retention as an evaluation metric is too long for practical purposes. Hence it is not chosen as an evaluation metric either.</p>
+
+<p><strong>Measuring Standard Deviation</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>METRIC</th>
+<th>ANALYTICAL STANDARD DEVIATION</th>
+<th>EXPECTATION ABOUT ESTIMATE</th>
+<th>EMPIRICAL STANDARD DEVIATION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gross conversion</td>
+<td>0.0202</td>
+<td>Since the unit of diversion and the unit of analysis the cookie, the empirical and the analytical variability would match.</td>
+<td>0.0269</td>
+</tr>
+<tr>
+<td>Net conversion</td>
+<td>0.0156</td>
+<td>Since the unit of diversion and the unit of analysis is a cookie, the empirical and the analytical variability would match.</td>
+<td>0.0313</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Sizing</strong></p>
+
+<p><em>Number of Samples vs. Power</em></p>
+
+<p>I won’t use the Bonferroni correction in the analysis phase. We need to test the significance of 1 of the 2 metrics. Hence, keeping the same alpha value works.
+Using an alpha value of 0.05 and a beta of 0.2, I will need 685325 page views to run the experiment for both the metrics.</p>
+
+<p><em>Duration vs. Exposure</em></p>
+
+<p>From the table of baseline values, it can be found that Udacity receives 40000 unique cookie views per day. To ensure that the experiment runs quickly, I choose to divert all of the traffic towards the experiment.
+Dividing 685325 page views by 40000 gives 17.13 days. When we round off to the nearest integer, we get 18 days.
+The experiment has a moderate risk for Udacity. The new interface should not cause a user experience issue. The risk would be that if something goes wrong with the experiment, almost half the Udacity users are affected. But running the experiment quickly is a priority and hence all the traffic should be diverted for the experiment.</p>
+
+<h3>
+<a id="experiment-analysis" class="anchor" href="#experiment-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Experiment Analysis</h3>
+
+<p><strong>Sanity Checks</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>INVARIANT METRIC</th>
+<th>LOWER BOUND OF CONFIDENCE INTERVAL</th>
+<th>UPPER BOUND OF CONFIDENCE INTERVAL</th>
+<th>OBSERVED</th>
+<th>RESULT</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of cookies</td>
+<td>0.4988</td>
+<td>0.5012</td>
+<td>0.5006</td>
+<td>Passes sanity check as the observed value lies in the confidence interval</td>
+</tr>
+<tr>
+<td>Number of clicks on “Start free trial”</td>
+<td>0.4959</td>
+<td>0.5041</td>
+<td>0.5005</td>
+<td>Passes sanity check as the observed value lies in the confidence interval</td>
+</tr>
+<tr>
+<td>Click-through probability on “Start free trial”</td>
+<td>-0.0012</td>
+<td>0.0013</td>
+<td>0.0001</td>
+<td>Passes sanity check as the observed value lies in the confidence interval</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="result-analysis" class="anchor" href="#result-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Result Analysis:</h3>
+
+<p><strong>Effect Size Tests</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>EVALUATION METRIC</th>
+<th>LOWER BOUND OF CONFIDENCE INTERVAL</th>
+<th>UPPER BOUND OF CONFIDENCE INTERVAL</th>
+<th>SIGNIFICANCE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gross Conversion</td>
+<td>-0.0291</td>
+<td>-0.0120</td>
+<td>The metric is both statistically and practically significant.</td>
+</tr>
+<tr>
+<td>Net Conversion</td>
+<td>-0.0116</td>
+<td>0.00186</td>
+<td>The metric is neither statistically nor practically significant.</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Sign Tests</strong></p>
+
+<table>
+<thead>
+<tr>
+<th>EVALUATION METRIC</th>
+<th>P VALUE</th>
+<th>SIGNIFICANCE</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gross Conversion</td>
+<td>0.0026</td>
+<td>The metric is statistically significant.</td>
+</tr>
+<tr>
+<td>Net Conversion</td>
+<td>0.6776</td>
+<td>The metric is not statistically significant.</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>Summary</strong></p>
+
+<p>Although there were 2 evaluation metrics, I did not use the Bonferroni correction. I am concerned about the significance of both Gross Conversion and net conversion. Bonferroni would have been used had I been concerned with the significance of any of the metrics. But here I am concerned with the significance of both of them. There are no discrepancies between the effect size hypothesis tests and the sign tests.</p>
+
+<p><strong>Recommendation</strong></p>
+
+<p>I would not launch the experiment. The gross conversion value is significant as expected. The net conversion value includes 0. But the lower bound of the confidence interval for net conversion is beyond the practical significance boundary which is a matter of concern. It means that there is a possibility of a significant reduction in the number of students continuing past the 14 day trial period. Hence, we should not launch the experiment.</p>
+
+<h3>
+<a id="follow-up-experiment" class="anchor" href="#follow-up-experiment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Follow-Up Experiment</h3>
+
+<p>Instead asking the user to enter the number of hours to be devoted per week on click of the ‘Start Free Trial’ button, a calendar would open up to schedule the hours to be put in in the next week for the course and a note would be mentioned saying that at 10 hours of study needs to planned per week for successful completion. And then the free trial would be started. Mails would be sent to the user at the beginning of the day reminding him about the time for that day in which he/she would study and a link to go to the course with a calendar which can be edited. The experiment group would see the calendar and receive the emails while the control group will not.</p>
+
+<p>The hypothesis is that this might not just set clearer expectations for students but also make them schedule the required number of hours beforehand thereby keeping them focused during the free trial, not drop off before it ends, continuously come back to do the courses due to the repeated emails and eventually complete the course.
+Since the enrollment hasn’t occurred, the unit of diversion should be a cookie.</p>
+
+<p>The metrics to be measured are:</p>
+
+<ul>
+<li>Number of cookies: number of unique cookies to view the course overview page.</li>
+<li>Number of clicks: number of unique cookies to click the "Start free trial" button (which happens before the free trial screener is trigger).</li>
+<li>Click-through-probability: number of unique cookies to click the "Start free trial" button divided by number of unique cookies to view the course overview page.</li>
+<li>Gross conversion: number of user-ids to complete checkout and enroll in the free trial divided by number of unique cookies to click the "Start free trial" button.</li>
+<li>Net conversion: number of user-ids to remain enrolled past the 14-day boundary (and thus make at least one payment) divided by the number of unique cookies to click the "Start free trial" button.
+The first 3 would be the invariant metrics. The last 2 would be the evaluation metrics.
+We hope to see a decrease in gross conversion and no change in net conversion as before.</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/Inquisitive-Geek/A_B_Testing">A/B Testing</a> is maintained by <a href="https://github.com/Inquisitive-Geek">Inquisitive-Geek</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
